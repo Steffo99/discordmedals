@@ -10,7 +10,7 @@
         {% for guild in guilds %}
             <div class="guild">
                 <h3>
-                    <a href="/guild/{{ guild.id }}">
+                    <a href="/guild/{{ guild[1].id }}">
                         <img class="discord-avatar" src="{{ guild[1].icon_url(size=64) }}"> {{ guild[1] }}
                     </a>
                 </h3>
