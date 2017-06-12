@@ -1,17 +1,14 @@
 import datetime
-from flask import Flask, redirect, session, request, render_template, abort, url_for
+from flask import Flask, redirect, session, request, render_template, abort
 from flask_sqlalchemy import SQLAlchemy
 from requests_oauthlib import OAuth2Session
 from uuid import uuid4
 import os
 
 app = Flask("discordmedals")
-app.secret_key = ["FLASK_SECRET_KEY"]
+app.secret_key = os.environ["FLASK_SECRET_KEY"]
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///database.sqlite"
 db = SQLAlchemy(app)
-
-if not os.path.exists(os.path.dirname(__file__).join("database.sqlite")):
-    db.create_all()
 
 class Membership(db.Model):
     __tablename__ = "membership"
@@ -122,9 +119,10 @@ class Medal(db.Model):
 class Award(db.Model):
     __tablename__ = "award"
 
+    award_id = db.Column(db.Integer, primary_key=True)
     date = db.Column(db.DateTime, nullable=False)
-    medal_id = db.Column(db.Integer, db.ForeignKey("medal.id"), primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), primary_key=True)
+    medal_id = db.Column(db.Integer, db.ForeignKey("medal.id"))
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
     medal = db.relationship("Medal", backref="awards")
     user = db.relationship("User", backref="awards")
 
@@ -135,6 +133,10 @@ class Award(db.Model):
 
     def __repr__(self):
         return "<Database entry for Medal {} awarded to {} on {}>".format(self.medal_id, self.user_id, self.date)
+
+
+if not os.path.exists(os.path.dirname(__file__).join("database.sqlite")):
+    db.create_all()
 
 
 oauth2_client_id = os.environ["DISCORD_OAUTH_CLIENT_ID"]
@@ -181,8 +183,9 @@ def page_guild(guild_id):
     members = User.query.join(Membership).filter_by(guild_id=guild_id).all()
     user_id = session.get("user_id")
     if user_id is None:
-        return render_template("guild.htm.j2", user=None, medals=medals, members=members, guild=guild)
-    user = User.query.filter_by(id=session["user_id"]).first()
+        user = None
+    else:
+        user = User.query.filter_by(id=session["user_id"]).first()
     return render_template("guild.htm.j2", user=user, medals=medals, members=members, guild=guild)
 
 
@@ -225,8 +228,12 @@ def page_user(user_id):
     for guild in guilds:
         awards = Award.query.filter_by(user_id=user.id).join(Medal).filter_by(guild_id=guild.id).all()
         award_groups.append(awards)
-    # Dirty hack
-    return render_template("user.htm.j2", user=user, guilds=enumerate(guilds), award_groups=award_groups)
+    logged_user_id = session.get("user_id")
+    if logged_user_id is None:
+        logged_user = None
+    else:
+        logged_user = User.query.filter_by(id=user_id).first()
+    return render_template("user.htm.j2", user=logged_user, guilds=enumerate(guilds), award_groups=award_groups)
 
 
 @app.route("/api/awardmedal")
