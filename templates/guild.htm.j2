@@ -11,12 +11,14 @@
             <div class="row">
                 {% for member in row %}
                     <div class="col-xs-2">
-                        <div class="image-center">
-                            <img class="large-discord-avatar" src="{{ member.avatar_url(size=64) }}">
-                        </div>
-                        <div class="text-center">
-                            {{ member }}
-                        </div>
+                        <a href="/user/{{ member.id }}">
+                            <div class="image-center">
+                                <img class="large-discord-avatar" src="{{ member.avatar_url(size=64) }}">
+                            </div>
+                            <div class="text-center">
+                                {{ member }}
+                            </div>
+                        </a>
                     </div>
                 {% endfor %}
             </div>
