@@ -10,7 +10,9 @@
         {% for guild in guilds %}
             <div class="guild">
                 <h3>
-                    <img class="discord-avatar" src="{{ guild[1].icon_url(size=64) }}"> {{ guild[1] }}
+                    <a href="/guild/{{ guild.id }}">
+                        <img class="discord-avatar" src="{{ guild[1].icon_url(size=64) }}"> {{ guild[1] }}
+                    </a>
                 </h3>
             </div>
             {% for row in award_groups[guild[0]] | batch(3) %}

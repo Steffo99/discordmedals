@@ -22,7 +22,7 @@
             <div id="navbar-elements" class="collapse navbar-collapse">
                 {% if user %}
                     <p class="navbar-text">
-                        Logged in as {% if user.avatar %}<img class="discord-avatar" src="{{ user.avatar_url() }}">{% endif %} {{ user }}
+                        Logged in as {% if user.avatar %}<img class="small-discord-avatar" src="{{ user.avatar_url() }}">{% endif %} {{ user }}
                     </p>
                     <a href="/logout" class="btn btn-danger navbar-btn">Logout</a>
                 {% else %}
