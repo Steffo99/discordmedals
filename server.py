@@ -3,13 +3,15 @@ from flask import Flask, redirect, session, request, render_template, abort, url
 from flask_sqlalchemy import SQLAlchemy
 from requests_oauthlib import OAuth2Session
 from uuid import uuid4
-from os import environ
+import os
 
 app = Flask("discordmedals")
-app.secret_key = environ["FLASK_SECRET_KEY"]
+app.secret_key = ["FLASK_SECRET_KEY"]
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///database.sqlite"
 db = SQLAlchemy(app)
 
+if not os.path.exists(os.path.dirname(__file__).join("database.sqlite")):
+    db.create_all()
 
 class Membership(db.Model):
     __tablename__ = "membership"
@@ -135,9 +137,9 @@ class Award(db.Model):
         return "<Database entry for Medal {} awarded to {} on {}>".format(self.medal_id, self.user_id, self.date)
 
 
-oauth2_client_id = environ["DISCORD_OAUTH_CLIENT_ID"]
-oauth2_client_secret = environ["DISCORD_OAUTH_CLIENT_SECRET"]
-oauth2_redirect = environ["BASE_DOMAIN_NAME"] + "/loggedin"
+oauth2_client_id = os.environ["DISCORD_OAUTH_CLIENT_ID"]
+oauth2_client_secret = os.environ["DISCORD_OAUTH_CLIENT_SECRET"]
+oauth2_redirect = os.environ["BASE_DOMAIN_NAME"] + "/loggedin"
 oauth2_token_url = "https://discordapp.com/api/oauth2/token"
 
 
