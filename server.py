@@ -233,7 +233,7 @@ def page_user(user_id):
         logged_user = None
     else:
         logged_user = User.query.filter_by(id=user_id).first()
-    return render_template("user.htm.j2", user=logged_user, guilds=enumerate(guilds), award_groups=award_groups)
+    return render_template("user.htm.j2", user=logged_user, queried_user=user, guilds=enumerate(guilds), award_groups=award_groups)
 
 
 @app.route("/api/awardmedal")

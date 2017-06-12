@@ -1,11 +1,21 @@
-.discord-avatar {
-    height: 20px;
-    border-radius: 10px;
-}
-
-.large-discord-avatar {
+h1 .discord-avatar, .large-discord-avatar {
     height: 64px;
     border-radius: 32px;
+}
+
+h2 .discord-avatar {
+    height: 56px;
+    border-radius: 28px;
+}
+
+h3 .discord-avatar, .discord-avatar {
+    height: 48px;
+    border-radius: 24px;
+}
+
+.small-discord-avatar {
+    height: 20px;
+    border-radius: 10px;
 }
 
 .image-center {

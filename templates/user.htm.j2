@@ -1,7 +1,7 @@
 {% extends "base.htm.j2" %}
 {% block content %}
     <h1>
-        <img class="large-discord-avatar" src="{{ user.avatar_url(size=64) }}"> {{ user }}
+        <img class="large-discord-avatar" src="{{ queried_user.avatar_url(size=64) }}"> {{ queried_user }}
     </h1>
     <div id="guilds">
         <h2>
