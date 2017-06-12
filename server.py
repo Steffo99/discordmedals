@@ -1,0 +1,314 @@
+import datetime
+from flask import Flask, redirect, session, request, render_template, abort, url_for
+from flask_sqlalchemy import SQLAlchemy
+from requests_oauthlib import OAuth2Session
+from uuid import uuid4
+from os import environ
+
+app = Flask("discordmedals")
+app.secret_key = environ["FLASK_SECRET_KEY"]
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///database.sqlite"
+db = SQLAlchemy(app)
+
+
+class Membership(db.Model):
+    __tablename__ = "membership"
+
+    permissions = db.Column(db.Integer, nullable=False)
+    guild_id = db.Column(db.Integer, db.ForeignKey("guild.id"), primary_key=True)
+    member_id = db.Column(db.Integer, db.ForeignKey("user.id"), primary_key=True)
+
+    def __init__(self, guild_data: dict, from_user_id: int):
+        self.member_id = from_user_id
+        self.guild_id = guild_data["id"]
+        self.permissions = guild_data["permissions"]
+
+    def __repr__(self):
+        return f"<Database entry for {self.member_id} membership in guild {self.guild_id}>"
+
+
+class User(db.Model):
+    __tablename__ = "user"
+
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String, nullable=False)
+    discriminator = db.Column(db.Integer, nullable=False)
+    avatar = db.Column(db.String)
+    memberships = db.relationship("Membership")
+
+    def __init__(self, data: dict):
+        self.id = data["id"]
+        self.username = data["username"]
+        self.discriminator = data["discriminator"]
+        if "avatar" in data:
+            self.avatar = data["avatar"]
+        else:
+            self.avatar = None
+
+    def avatar_url(self, size=256):
+        if self.avatar is None:
+            return None
+        return f"https://cdn.discordapp.com/avatars/{self.id}/{self.avatar}.png?size={size}"
+
+    def __str__(self):
+        return f"{self.username}#{self.discriminator}"
+
+    def __repr__(self):
+        return f"<Database entry for Discord user {self.id}>"
+
+    def mention(self):
+        return f"<@{self.id}>"
+
+
+class Guild(db.Model):
+    __tablename__ = "guild"
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String, nullable=False)
+    icon = db.Column(db.String)
+    owner_id = db.Column(db.Integer, db.ForeignKey("user.id"))
+    owner = db.relationship("User", backref="owns")
+    members = db.relationship("Membership")
+
+    def __init__(self, guild_data: dict, from_user_id: int):
+        self.id = guild_data["id"]
+        self.name = guild_data["name"]
+        if "icon" is not None:
+            self.icon = guild_data["icon"]
+        else:
+            self.icon = None
+        if guild_data["owner"]:
+            self.owner_id = from_user_id
+
+    def icon_url(self, size=256):
+        # Size can be up to 512px...?
+        if self.icon is None:
+            return None
+        return f"https://cdn.discordapp.com/icons/{self.id}/{self.icon}.png?size={size}"
+
+    def __str__(self):
+        return self.name
+
+    def __repr__(self):
+        return f"<Database entry for Discord guild {self.id}>"
+
+
+class Medal(db.Model):
+    __tablename__ = "medal"
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String, nullable=False)
+    description = db.Column(db.String)
+    icon = db.Column(db.String)
+    tier = db.Column(db.String, nullable=False)
+    token = db.Column(db.String, nullable=False)
+    guild_id = db.Column(db.Integer, db.ForeignKey("guild.id"))
+    guild = db.relationship("Guild", backref="medals")
+
+    def __init__(self, name: str, description: str, icon: str, tier: str, guild_id: int):
+        self.name = name
+        self.description = description
+        self.icon = icon
+        self.tier = tier
+        self.guild_id = guild_id
+        self.token = uuid4().hex
+
+    def __repr__(self):
+        return f"<Database entry for Medal {self.id}>"
+
+
+class Award(db.Model):
+    __tablename__ = "award"
+
+    date = db.Column(db.DateTime, nullable=False)
+    medal_id = db.Column(db.Integer, db.ForeignKey("medal.id"), primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), primary_key=True)
+    medal = db.relationship("Medal", backref="awards")
+    user = db.relationship("User", backref="awards")
+
+    def __init__(self, medal_id: int, user_id: int, date):
+        self.date = date
+        self.medal_id = medal_id
+        self.user_id = user_id
+
+    def __repr__(self):
+        return f"<Database entry for Medal {self.medal_id} awarded to {self.user_id} on {self.date}>"
+
+
+oauth2_client_id = environ["DISCORD_OAUTH_CLIENT_ID"]
+oauth2_client_secret = environ["DISCORD_OAUTH_CLIENT_SECRET"]
+oauth2_redirect = url_for("/loggedin")
+oauth2_token_url = "https://discordapp.com/api/oauth2/token"
+
+
+def update_token(token):
+    session["oauth2_token"] = token
+
+
+def make_session(token=None, state=None, scope=None):
+    return OAuth2Session(client_id=oauth2_client_id,
+                         token=token,
+                         state=state,
+                         scope=scope,
+                         redirect_uri=oauth2_redirect,
+                         auto_refresh_kwargs={
+                             'client_id': oauth2_client_id,
+                             'client_secret': oauth2_client_secret,
+                         },
+                         auto_refresh_url=oauth2_token_url,
+                         token_updater=update_token)
+
+
+@app.route("/")
+def page_home():
+    user_id = session.get("user_id")
+    if user_id is None:
+        return render_template("base.htm.j2", user=None)
+    # Find the logged in user in the database
+    user = User.query.filter_by(id=user_id).first()
+    guilds = Guild.query.join(Membership).filter_by(member_id=user_id).all()
+    return render_template("home.htm.j2", user=user, guilds=guilds)
+
+
+@app.route("/guild/<int:guild_id>")
+def page_guild(guild_id):
+    guild = Guild.query.filter_by(id=guild_id).first()
+    if guild is None:
+        abort(404)
+    medals = Medal.query.filter_by(guild_id=guild_id).all()
+    members = User.query.join(Membership).filter_by(guild_id=guild_id).all()
+    user_id = session.get("user_id")
+    if user_id is None:
+        return render_template("guild.htm.j2", user=None, medals=medals, members=members, guild=guild)
+    user = User.query.filter_by(id=session["user_id"]).first()
+    return render_template("guild.htm.j2", user=user, medals=medals, members=members, guild=guild)
+
+
+@app.route("/guild/<int:guild_id>/newmedal", methods=["GET", "POST"])
+def page_newmedal(guild_id):
+    guild = Guild.query.filter_by(id=guild_id).first()
+    if guild is None:
+        abort(404)
+    user_id = session.get("user_id")
+    if user_id is None or int(user_id) != int(guild.owner_id):
+        abort(403)
+    if request.method == "GET":
+        user = User.query.filter_by(id=user_id).first()
+        return render_template("newmedal.htm.j2", user=user, guild=guild)
+    elif request.method == "POST":
+        name = request.form["name"]
+        if len(name) > 128:
+            abort(400)
+        description = request.form["description"]
+        if len(description) > 512:
+            abort(400)
+        icon = request.form["icon"]
+        # TODO: possibile injection qui
+        tier = request.form["tier"]
+        if tier != "bronze" and tier != "silver" and tier != "gold":
+            abort(400)
+        medal = Medal(name=name, description=description, icon=icon, tier=tier, guild_id=guild_id)
+        db.session.add(medal)
+        db.session.commit()
+        return redirect(f"/guild/{guild_id}")
+
+
+@app.route("/user/<int:user_id>")
+def page_user(user_id):
+    user = User.query.filter_by(id=user_id).first()
+    if user is None:
+        abort(404)
+    guilds = Guild.query.join(Membership).filter_by(member_id=user.id).all()
+    award_groups = list()
+    for guild in guilds:
+        awards = Award.query.filter_by(user_id=user.id).join(Medal).filter_by(guild_id=guild.id).all()
+        award_groups.append(awards)
+    # Dirty hack
+    return render_template("user.htm.j2", user=user, guilds=enumerate(guilds), award_groups=award_groups)
+
+
+@app.route("/api/awardmedal")
+def api_awardmedal():
+    token = request.args.get("token")
+    if token is None:
+        return "No token specified."
+    medal = Medal.query.filter_by(token=token).first()
+    if medal is None:
+        return "Invalid token."
+    user_id = request.args.get("user")
+    user = User.query.filter_by(id=user_id).first()
+    if user is None:
+        return "User not found."
+    award = Award(medal.id, user.id, datetime.datetime.now())
+    db.session.add(award)
+    db.session.commit()
+    return "Success!"
+
+
+@app.route("/login")
+def page_login():
+    scope = ["identify", "guilds"]
+    oauth = make_session(scope=scope)
+    auth_url, state = oauth.authorization_url("https://discordapp.com/api/oauth2/authorize")
+    session["oauth2_state"] = state
+    return redirect(auth_url)
+
+
+@app.route("/loggedin")
+def page_loggedin():
+    if session.get("oauth2_state") is None:
+        return redirect("/")
+    if request.values.get("error") is not None:
+        return redirect("/")
+    oauth = make_session(state=session["oauth2_state"])
+    session["oauth2_token"] = oauth.fetch_token(oauth2_token_url, client_secret=oauth2_client_secret, authorization_response=request.url)
+    # Check if the user already exists in the database
+    oauth = make_session(token=session["oauth2_token"])
+    userdata = oauth.get("https://discordapp.com/api/users/@me").json()
+    userquery = User.query.filter_by(id=userdata["id"]).first()
+    # If it doesn't exist, create a new row containing his info
+    if userquery is None:
+        # Add user data to the database
+        newuser = User(userdata)
+        db.session.add(newuser)
+    else:
+        userquery.__init__(userdata)
+    # Update guilds data
+    guildsdata = oauth.get("https://discordapp.com/api/users/@me/guilds").json()
+    # Add new guild
+    for guilddata in guildsdata:
+        # Check if the guild exists
+        guildquery = Guild.query.filter_by(id=guilddata["id"]).first()
+        if guildquery is None:
+            # Add guild data to the database
+            newguild = Guild(guilddata, userdata["id"])
+            db.session.add(newguild)
+        else:
+            # Update guild data
+            guildquery.__init__(guilddata, userdata["id"])
+        # Check / update the membership
+        membership = Membership.query.filter_by(guild_id=guilddata["id"], member_id=userdata["id"]).first()
+        if membership is None:
+            membership = Membership(guilddata, userdata["id"])
+            db.session.add(membership)
+        else:
+            # Update membership data
+            membership.__init__(guilddata, userdata["id"])
+    db.session.commit()
+    # TODO: remove left guilds?
+    # Save the userid in the session data
+    session["user_id"] = userdata["id"]
+    # Go back to the home page
+    return redirect("/")
+
+
+@app.route("/logout")
+def page_logout():
+    session["oauth2_token"] = None
+    session["oauth2_state"] = None
+    session["user_id"] = None
+    return redirect("/")
+
+
+if __name__ == "__main__":
+    app.run()

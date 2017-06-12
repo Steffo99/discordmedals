@@ -1,0 +1,48 @@
+{% extends "base.htm.j2" %}
+{% block content %}
+    <h1>
+        <img class="large-discord-avatar" src="{{ guild.icon_url(size=64) }}"> {{ guild }}
+    </h1>
+    <div id="members">
+        <h2>
+            Members
+        </h2>
+        {% for row in members | batch(6) %}
+            <div class="row">
+                {% for member in row %}
+                    <div class="col-xs-2">
+                        <div class="image-center">
+                            <img class="large-discord-avatar" src="{{ member.avatar_url(size=64) }}">
+                        </div>
+                        <div class="text-center">
+                            {{ member }}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endfor %}
+    </div>
+    <div id="medals">
+        <h2>
+            Medals
+            {% if guild.owner_id == user.id %}
+                <a href="/guild/{{ guild.id }}/newmedal" class="btn btn-success btn-sm">
+                    <span class="glyphicon glyphicon-plus"></span> New
+                </a>
+            {% endif %}
+        </h2>
+        {% if not medals %}
+            This group hasn't created any medal.
+        {% endif %}
+        {% for row in medals | batch(3) %}
+            <div class="row">
+                {% for award in row %}
+                    <div class="col-md-4">
+                        {% include "medal.htm.j2" %}
+                    </div>
+
+                {% endfor %}
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}

@@ -1,0 +1,110 @@
+{% extends "base.htm.j2" %}
+{% block extrahead %}
+    <script>
+        var mname;
+        var description;
+        var icon;
+
+        window.onload = function()
+        {
+            mname = document.getElementById("medal-name");
+            description = document.getElementById("medal-description");
+            icon = document.getElementById("medal-icon");
+        }
+
+        function updateName()
+        {
+            mname.innerHTML = document.getElementById("input-name").value
+        }
+
+        function updateDescription()
+        {
+            description.innerHTML = document.getElementById("input-description").value
+        }
+
+        function updateMedalClass()
+        {
+            var classstring = "glyphicon glyphicon-";
+            classstring += document.getElementById("input-icon").value;
+
+            if(document.getElementById("input-bronze").checked)
+            {
+                classstring += " bronze";
+            }
+            else if(document.getElementById("input-silver").checked)
+            {
+                classstring += " silver";
+            }
+            else if(document.getElementById("input-gold").checked)
+            {
+                classstring += " gold";
+            }
+
+            document.getElementById("medal-icon").className = classstring;
+        }
+
+
+    </script>
+{% endblock %}
+{% block content %}
+    <h1>
+        New medal
+    </h1>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="panel panel-default medal">
+                <div class="panel-body">
+                    <div class="media">
+                        <div class="media-left">
+                            <span class="medal-icon" id="medal-icon"></span>
+                        </div>
+                        <div class="media-body">
+                            <h4 class="media-header medal-name" id="medal-name">
+                                Name
+                            </h4>
+                            <div class="medal-description" id="medal-description">
+                                Description
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <form method="POST" target="/newmedal">
+        <div class="form-group">
+            <label for="input-name">Name</label>
+            <input type="text" class="form-control" id="input-name" name="name" oninput="updateName()">
+        </div>
+        <div class="form-group">
+            <label for="input-name">Description</label>
+            <textarea class="form-control" id="input-description" name="description" oninput="updateDescription()"></textarea>
+        </div>
+        <div class="form-group">
+            <label for="input-name">Icon</label>
+            <input type="text" class="form-control" id="input-icon" name="icon" oninput="updateMedalClass()">
+        </div>
+        <label for="input-tier">Tier</label>
+        <div id="input-tier">
+            <div class="radio">
+                <label>
+                    <input id="input-bronze" type="radio" name="tier" value="bronze" onclick="updateMedalClass()">
+                    <span class="bronze">Bronze</span>
+                </label>
+            </div>
+            <div class="radio">
+                <label>
+                    <input id="input-silver" type="radio" name="tier" value="silver" onclick="updateMedalClass()">
+                    <span class="silver">Silver</span>
+                </label>
+            </div>
+            <div class="radio">
+                <label>
+                    <input id="input-gold" type="radio" name="tier" value="gold" onclick="updateMedalClass()">
+                    <span class="gold">Gold</span>
+                </label>
+            </div>
+        </div>
+        <input type="submit" class="btn btn-success">
+    </form>
+{% endblock %}

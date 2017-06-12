@@ -1,0 +1,29 @@
+{% extends "base.htm.j2" %}
+{% block content %}
+    <h1>
+        <img class="large-discord-avatar" src="{{ user.avatar_url(size=64) }}"> {{ user }}
+    </h1>
+    <div id="guilds">
+        <h2>
+            Servers
+        </h2>
+        {% for guild in guilds %}
+            <div class="guild">
+                <h3>
+                    <img class="large-discord-avatar" src="{{ guild[1].icon_url(size=64) }}"> {{ guild[1] }}
+                </h3>
+            </div>
+            {% for row in award_groups[guild[0]] | batch(3) %}
+                <div class="row">
+                    {% for award in row %}
+                        <div class="col-md-4">
+                            {% with medal=award.medal %}
+                                {% include "medal.htm.j2" %}
+                            {% endwith %}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        {% endfor %}
+    </div>
+{% endblock %}
