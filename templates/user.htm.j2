@@ -1,7 +1,7 @@
 {% extends "base.htm.j2" %}
 {% block content %}
     <h1>
-        <img class="large-discord-avatar" src="{{ queried_user.avatar_url(size=64) }}"> {{ queried_user }}
+        <img class="discord-avatar" src="{{ queried_user.avatar_url(size=64) }}"> {{ queried_user }}
     </h1>
     <div id="guilds">
         <h2>
@@ -10,7 +10,7 @@
         {% for guild in guilds %}
             <div class="guild">
                 <h3>
-                    <img class="large-discord-avatar" src="{{ guild[1].icon_url(size=64) }}"> {{ guild[1] }}
+                    <img class="discord-avatar" src="{{ guild[1].icon_url(size=64) }}"> {{ guild[1] }}
                 </h3>
             </div>
             {% for row in award_groups[guild[0]] | batch(3) %}

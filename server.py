@@ -168,10 +168,7 @@ def page_home():
     user_id = session.get("user_id")
     if user_id is None:
         return render_template("base.htm.j2", user=None)
-    # Find the logged in user in the database
-    user = User.query.filter_by(id=user_id).first()
-    guilds = Guild.query.join(Membership).filter_by(member_id=user_id).all()
-    return render_template("home.htm.j2", user=user, guilds=guilds)
+    return redirect("/user/{}".format(user_id))
 
 
 @app.route("/guild/<int:guild_id>")
