@@ -24,7 +24,7 @@ class Membership(db.Model):
         self.permissions = guild_data["permissions"]
 
     def __repr__(self):
-        return f"<Database entry for {self.member_id} membership in guild {self.guild_id}>"
+        return "<Database entry for {} membership in guild {}>".format(self.member_id, self.guild_id)
 
 
 class User(db.Model):
@@ -48,16 +48,16 @@ class User(db.Model):
     def avatar_url(self, size=256):
         if self.avatar is None:
             return None
-        return f"https://cdn.discordapp.com/avatars/{self.id}/{self.avatar}.png?size={size}"
+        return "https://cdn.discordapp.com/avatars/{}/{}.png?size={}".format(self.id, self.avatar, size)
 
     def __str__(self):
-        return f"{self.username}#{self.discriminator}"
+        return "{}#{}".format(self.username, self.discriminator)
 
     def __repr__(self):
-        return f"<Database entry for Discord user {self.id}>"
+        return "<Database entry for Discord user {}>".format(self.id)
 
     def mention(self):
-        return f"<@{self.id}>"
+        return "<@{}>".format(self.id)
 
 
 class Guild(db.Model):
@@ -84,13 +84,13 @@ class Guild(db.Model):
         # Size can be up to 512px...?
         if self.icon is None:
             return None
-        return f"https://cdn.discordapp.com/icons/{self.id}/{self.icon}.png?size={size}"
+        return "https://cdn.discordapp.com/icons/{}/{}.png?size={}".format(self.id, self.icon, size)
 
     def __str__(self):
         return self.name
 
     def __repr__(self):
-        return f"<Database entry for Discord guild {self.id}>"
+        return "<Database entry for Discord guild {}>".format(self.id)
 
 
 class Medal(db.Model):
@@ -114,7 +114,7 @@ class Medal(db.Model):
         self.token = uuid4().hex
 
     def __repr__(self):
-        return f"<Database entry for Medal {self.id}>"
+        return "<Database entry for Medal {}>".format(self.id)
 
 
 class Award(db.Model):
@@ -132,7 +132,7 @@ class Award(db.Model):
         self.user_id = user_id
 
     def __repr__(self):
-        return f"<Database entry for Medal {self.medal_id} awarded to {self.user_id} on {self.date}>"
+        return "<Database entry for Medal {} awarded to {} on {}>".format(self.medal_id, self.user_id, self.date)
 
 
 oauth2_client_id = environ["DISCORD_OAUTH_CLIENT_ID"]
@@ -210,7 +210,7 @@ def page_newmedal(guild_id):
         medal = Medal(name=name, description=description, icon=icon, tier=tier, guild_id=guild_id)
         db.session.add(medal)
         db.session.commit()
-        return redirect(f"/guild/{guild_id}")
+        return redirect("/guild/{}".format(guild_id))
 
 
 @app.route("/user/<int:user_id>")
