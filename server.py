@@ -137,7 +137,7 @@ class Award(db.Model):
 
 oauth2_client_id = environ["DISCORD_OAUTH_CLIENT_ID"]
 oauth2_client_secret = environ["DISCORD_OAUTH_CLIENT_SECRET"]
-oauth2_redirect = url_for("/loggedin")
+oauth2_redirect = environ["BASE_DOMAIN_NAME"] + "/loggedin"
 oauth2_token_url = "https://discordapp.com/api/oauth2/token"
 
 
