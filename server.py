@@ -229,7 +229,7 @@ def page_user(user_id):
     if logged_user_id is None:
         logged_user = None
     else:
-        logged_user = User.query.filter_by(id=user_id).first()
+        logged_user = User.query.filter_by(id=logged_user_id).first()
     return render_template("user.htm.j2", user=logged_user, queried_user=user, guilds=enumerate(guilds), award_groups=award_groups)
 
 
