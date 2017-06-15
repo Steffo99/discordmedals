@@ -45,3 +45,8 @@ h3 .discord-avatar, .discord-avatar {
     color: gray;
     font-size: 10px;
 }
+
+.navbar-text {
+    display: inline-block;
+    margin-right: 15px;
+}
