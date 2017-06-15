@@ -1,4 +1,5 @@
 {% extends "base.htm.j2" %}
+{% block title %}{{ queried_user }} - Discord Medals{% endblock %}
 {% block content %}
     <h1>
         <img class="discord-avatar" src="{{ queried_user.avatar_url(size=64) }}"> {{ queried_user }}
