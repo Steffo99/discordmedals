@@ -186,7 +186,7 @@ def page_guild(guild_id):
     return render_template("guild.htm.j2", user=user, medals=medals, members=members, guild=guild)
 
 
-@app.route("/guild/<int:guild_id>/newmedal", methods=["GET", "POST"])
+@app.route("/guild/<int:guild_id>/new", methods=["GET", "POST"])
 def page_newmedal(guild_id):
     guild = Guild.query.filter_by(id=guild_id).first()
     if guild is None:
@@ -196,7 +196,7 @@ def page_newmedal(guild_id):
         abort(403)
     if request.method == "GET":
         user = User.query.filter_by(id=user_id).first()
-        return render_template("newmedal.htm.j2", user=user, guild=guild)
+        return render_template("newmedal.htm.j2", user=user, target="new")
     elif request.method == "POST":
         name = request.form["name"]
         if len(name) > 128:
@@ -213,6 +213,37 @@ def page_newmedal(guild_id):
         db.session.add(medal)
         db.session.commit()
         return redirect("/guild/{}".format(guild_id))
+
+
+@app.route("/medal/<int:medal_id>/edit", methods=["GET", "POST"])
+def page_editmedal(medal_id):
+    medal = Medal.query.filter_by(id=medal_id).first()
+    if medal is None:
+        abort(404)
+    user_id = session.get("user_id")
+    if user_id is None or int(user_id) != int(medal.guild.owner_id):
+        abort(403)
+    if request.method == "GET":
+        user = User.query.filter_by(id=user_id).first()
+        return render_template("newmedal.htm.j2", user=user, medal=medal, target="edit")
+    elif request.method == "POST":
+        name = request.form["name"]
+        if len(name) > 128:
+            abort(400)
+        description = request.form["description"]
+        if len(description) > 512:
+            abort(400)
+        icon = request.form["icon"]
+        # TODO: possibile injection qui
+        tier = request.form["tier"]
+        if tier != "bronze" and tier != "silver" and tier != "gold":
+            abort(400)
+        medal.name = name
+        medal.description = description
+        medal.icon = icon
+        medal.tier = tier
+        db.session.commit()
+        return redirect("/guild/{}".format(medal.guild_id))
 
 
 @app.route("/user/<int:user_id>")
