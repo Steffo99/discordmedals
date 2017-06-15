@@ -46,6 +46,11 @@ h3 .discord-avatar, .discord-avatar {
     font-size: 10px;
 }
 
+.medal .medal-date {
+    font-style: italic;
+    color: gray;
+}
+
 .navbar-text {
     display: inline-block;
     margin-right: 15px;

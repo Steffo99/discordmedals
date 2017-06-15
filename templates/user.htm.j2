@@ -20,9 +20,26 @@
                 <div class="row">
                     {% for award in row %}
                         <div class="col-md-4">
-                            {% with medal=award.medal %}
-                                {% include "medal.htm.j2" %}
-                            {% endwith %}
+                            <div class="panel panel-default medal">
+                                <div class="panel-body">
+                                    <div class="media">
+                                        <div class="media-left">
+                                            <span class="glyphicon glyphicon-{{ award.medal.icon }} {{ award.medal.tier }} medal-icon"></span>
+                                        </div>
+                                        <div class="media-body">
+                                            <h4 class="media-header medal-name">
+                                                {{ award.medal.name }}
+                                            </h4>
+                                            <div class="medal-description">
+                                                {{ award.medal.description }}
+                                            </div>
+                                            <div class="medal-date">
+                                                {{ award.date }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     {% endfor %}
                 </div>
