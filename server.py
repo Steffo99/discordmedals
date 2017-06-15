@@ -82,7 +82,7 @@ class Guild(db.Model):
     def icon_url(self, size=256):
         # Size can be up to 512px...?
         if self.icon is None:
-            return None
+            return "https://discordapp.com/assets/6debd47ed13483642cf09e832ed0bc1b.png"
         return "https://cdn.discordapp.com/icons/{}/{}.png?size={}".format(self.id, self.icon, size)
 
     def __str__(self):
