@@ -16,6 +16,9 @@
                     </a>
                 </h3>
             </div>
+            {% if not award_groups[guild[0]] %}
+                There are no medals here.
+            {% endif %}
             {% for row in award_groups[guild[0]] | batch(3) %}
                 <div class="row">
                     {% for award in row %}
