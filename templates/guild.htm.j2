@@ -29,7 +29,7 @@
         <h2>
             Medals
             {% if guild.owner_id == user.id %}
-                <a href="/guild/{{ guild.id }}/newmedal" class="btn btn-success btn-sm">
+                <a href="/guild/{{ guild.id }}/new" class="btn btn-success btn-sm">
                     <span class="glyphicon glyphicon-plus"></span> New
                 </a>
             {% endif %}

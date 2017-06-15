@@ -11,6 +11,9 @@
             mname = document.getElementById("medal-name");
             description = document.getElementById("medal-description");
             icon = document.getElementById("medal-icon");
+            updateName();
+            updateDescription();
+            updateMedalClass();
         }
 
         function updateName()
@@ -49,7 +52,8 @@
 {% endblock %}
 {% block content %}
     <h1>
-        New medal
+        {# I'm so lazy #}
+        {{ target | capitalize }} medal
     </h1>
     <div class="row">
         <div class="col-md-4">
@@ -72,40 +76,40 @@
             </div>
         </div>
     </div>
-    <form method="POST" target="/newmedal">
+    <form method="POST" target="{{ target }}">
         <div class="form-group">
             <label for="input-name">Name</label>
-            <input type="text" class="form-control" id="input-name" name="name" oninput="updateName()">
+            <input type="text" class="form-control" id="input-name" name="name" {% if medal %}value="{{ medal.name }}"{% endif %} oninput="updateName()">
         </div>
         <div class="form-group">
             <label for="input-name">Description</label>
-            <textarea class="form-control" id="input-description" name="description" oninput="updateDescription()"></textarea>
+            <textarea class="form-control" id="input-description" name="description" oninput="updateDescription()">{% if medal %}{{ medal.description }}{% endif %}</textarea>
         </div>
         <div class="form-group">
             <label for="input-name">Icon</label>
-            <input type="text" class="form-control" id="input-icon" name="icon" oninput="updateMedalClass()">
+            <input type="text" class="form-control" id="input-icon" name="icon" {% if medal %}value="{{ medal.icon }}"{% endif %} oninput="updateMedalClass()">
         </div>
         <label for="input-tier">Tier</label>
         <div id="input-tier">
             <div class="radio">
                 <label>
-                    <input id="input-bronze" type="radio" name="tier" value="bronze" onclick="updateMedalClass()">
+                    <input id="input-bronze" type="radio" name="tier" value="bronze" {% if medal %}{% if medal.tier == "bronze" %}checked{% endif %}{% endif %} onclick="updateMedalClass()">
                     <span class="bronze">Bronze</span>
                 </label>
             </div>
             <div class="radio">
                 <label>
-                    <input id="input-silver" type="radio" name="tier" value="silver" onclick="updateMedalClass()">
+                    <input id="input-silver" type="radio" name="tier" value="silver" {% if medal %}{% if medal.tier == "silver" %}checked{% endif %}{% endif %} onclick="updateMedalClass()">
                     <span class="silver">Silver</span>
                 </label>
             </div>
             <div class="radio">
                 <label>
-                    <input id="input-gold" type="radio" name="tier" value="gold" onclick="updateMedalClass()">
+                    <input id="input-gold" type="radio" name="tier" value="gold" {% if medal %}{% if medal.tier == "gold" %}checked{% endif %}{% endif %} onclick="updateMedalClass()">
                     <span class="gold">Gold</span>
                 </label>
             </div>
         </div>
-        <input type="submit" class="btn btn-success">
+        <input type="submit" class="btn btn-success" value="Create">
     </form>
 {% endblock %}
