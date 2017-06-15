@@ -1,5 +1,5 @@
 import datetime
-from flask import Flask, redirect, session, request, render_template, abort
+from flask import Flask, redirect, session, request, render_template, abort, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from requests_oauthlib import OAuth2Session
 from uuid import uuid4
@@ -237,18 +237,37 @@ def page_user(user_id):
 def api_awardmedal():
     token = request.args.get("token")
     if token is None:
-        return "No token specified."
+        return jsonify({
+            "success": False,
+            "error": "Missing medal token"
+        })
     medal = Medal.query.filter_by(token=token).first()
     if medal is None:
-        return "Invalid token."
+        return jsonify({
+            "success": False,
+            "error": "Invalid medal token"
+        })
     user_id = request.args.get("user")
     user = User.query.filter_by(id=user_id).first()
     if user is None:
-        return "User not found."
-    award = Award(medal.id, user.id, datetime.datetime.now())
+        return jsonify({
+            "success": False,
+            "error": "User not found"
+        })
+    unique = request.args.get("unique", False)
+    if unique:
+        queried_medal = Award.query.filter_by(medal_id=medal.id, user_id=user.id).first()
+        if queried_medal:
+            return jsonify({
+                "success": False,
+                "error": "User already owns the medal"
+            })
+    award = Award(medal_id=medal.id, user_id=user.id, date=datetime.datetime.now())
     db.session.add(award)
     db.session.commit()
-    return "Success!"
+    return jsonify({
+        "success": True
+    })
 
 
 @app.route("/login")
