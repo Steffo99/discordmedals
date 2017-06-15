@@ -46,7 +46,7 @@ class User(db.Model):
 
     def avatar_url(self, size=256):
         if self.avatar is None:
-            return None
+            return "https://discordapp.com/assets/6debd47ed13483642cf09e832ed0bc1b.png"
         return "https://cdn.discordapp.com/avatars/{}/{}.png?size={}".format(self.id, self.avatar, size)
 
     def __str__(self):
