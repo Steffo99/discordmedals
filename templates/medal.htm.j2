@@ -12,11 +12,12 @@
                     {{ medal.description }}
                 </div>
                 {% if medal.guild.owner_id == user.id %}
-                    <div class="medal-token">
+                    <div class="medal-token" id="medal-{{ medal.id }}-token">
                         {{ medal.token }}
                     </div>
                     <div class="medal-actions">
                         <a href="/medal/{{ medal.id }}/edit">Edit</a>
+                        <a href="#" onclick="regenToken({{ medal.id }})">Regen</a>
                     </div>
                 {% endif %}
             </div>
