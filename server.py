@@ -301,6 +301,28 @@ def api_awardmedal():
     })
 
 
+@app.route("/api/regentoken")
+def api_revoketoken():
+    token = request.args.get("token")
+    if token is None:
+        return jsonify({
+            "success": False,
+            "error": "Missing medal token"
+        })
+    medal = Medal.query.filter_by(token=token).first()
+    if medal is None:
+        return jsonify({
+            "success": False,
+            "error": "Invalid medal token"
+        })
+    medal.token = uuid4().hex
+    db.session.commit()
+    return jsonify({
+        "success": True,
+        "new_token": medal.token
+    })
+
+
 @app.route("/login")
 def page_login():
     scope = ["identify", "guilds"]
