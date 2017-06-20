@@ -1,3 +1,22 @@
+body {
+    background-color: #36393E;
+    color: rgba(100%, 100%, 100%, 0.7);
+}
+
+body a, a:hover, a:active {
+    color: #0096cf;
+}
+
+#navbar {
+    background-color: #2F3136;
+    border: none;
+}
+
+.medal {
+    background-color: #2F3136;
+    border: none;
+}
+
 h1 .discord-avatar, .large-discord-avatar {
     height: 64px;
     border-radius: 32px;
@@ -54,17 +73,4 @@ h3 .discord-avatar, .discord-avatar {
 .navbar-text {
     display: inline-block;
     margin-right: 15px;
-}
-
-@keyframes mystery {
-  0% {
-    color: purple;
-  }
-  100% {
-    color: black;
-  }
-}
-
-.mystery {
-  animation: mystery 1s infinite alternate ease-in-out;
 }
