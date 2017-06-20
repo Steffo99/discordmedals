@@ -19,7 +19,7 @@
                         throw new XMLHttpRequestException();
                     }
                 }
-            }
+            };
             request.open("GET", "/api/regentoken?token=" + token_element.innerHTML.replace(/^\s+|\s+$/g, ''), true);
             request.send(null);
         }
@@ -52,7 +52,7 @@
     </div>
     <div id="medals">
         <h2>
-            Medals
+            Medals {% if bronze %}<span class="badge bronze">{{ bronze }}</span>{% endif %}{% if silver %}<span class="badge silver">{{ silver }}</span>{% endif %}{% if gold %}<span class="badge gold">{{ gold }}</span>{% endif %}
             {% if guild.owner_id == user.id %}
                 <a href="/guild/{{ guild.id }}/new" class="btn btn-success btn-sm">
                     <span class="glyphicon glyphicon-plus"></span> New
@@ -66,7 +66,32 @@
             <div class="row">
                 {% for medal in row %}
                     <div class="col-md-4">
-                        {% include "medal.htm.j2" %}
+                        <div class="panel panel-default medal">
+                            <div class="panel-body">
+                                <div class="media">
+                                    <div class="media-left">
+                                        <span class="glyphicon glyphicon-{{ medal.icon }} {{ medal.tier }} medal-icon"></span>
+                                    </div>
+                                    <div class="media-body">
+                                        <h4 class="media-header medal-name">
+                                            <a href="/medal/{{ medal.id }}">{{ medal.name }}</a>
+                                        </h4>
+                                        <div class="medal-description">
+                                            {{ medal.description }}
+                                        </div>
+                                        {% if medal.guild.owner_id == user.id %}
+                                            <div class="medal-token" id="medal-{{ medal.id }}-token">
+                                                {{ medal.token }}
+                                            </div>
+                                            <div class="medal-actions">
+                                                <a href="/medal/{{ medal.id }}/edit">Edit</a>
+                                                <a href="#" onclick="regenToken({{ medal.id }})">Regen</a>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 {% endfor %}
             </div>

@@ -3,8 +3,17 @@ body {
     color: rgba(100%, 100%, 100%, 0.7);
 }
 
-body a, a:hover, a:active {
+body a, a:hover, a:active, a:visited {
     color: #0096cf;
+}
+
+.btn {
+    color: white !important;
+}
+
+.badge {
+    background-color: rgba(100%, 100%, 100%, 0.7);
+    color: black;
 }
 
 #navbar {
@@ -13,6 +22,7 @@ body a, a:hover, a:active {
 }
 
 .medal {
+    /*color: #2F3136;*/
     background-color: #2F3136;
     border: none;
 }
@@ -41,6 +51,21 @@ h3 .discord-avatar, .discord-avatar {
     width: 64px;
     margin-left: auto;
     margin-right: auto;
+}
+
+.badge.bronze {
+    color: white;
+    background-color: chocolate;
+}
+
+.badge.silver {
+    color: black;
+    background-color: darkgray;
+}
+
+.badge.gold {
+    color: black;
+    background-color: gold;
 }
 
 .bronze {
