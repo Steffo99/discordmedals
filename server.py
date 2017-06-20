@@ -112,6 +112,9 @@ class Medal(db.Model):
         self.guild_id = guild_id
         self.token = uuid4().hex
 
+    def __str__(self):
+        return self.name
+
     def __repr__(self):
         return "<Database entry for Medal {}>".format(self.id)
 
@@ -162,6 +165,33 @@ def make_session(token=None, state=None, scope=None):
                          auto_refresh_url=oauth2_token_url,
                          token_updater=update_token)
 
+def count_awards_by_tier(awards_joined_with_medals: list):
+    bronze = 0
+    silver = 0
+    gold = 0
+    for award in awards_joined_with_medals:
+        if award.medal.tier == "bronze":
+            bronze += 1
+        elif award.medal.tier == "silver":
+            silver += 1
+        elif award.medal.tier == "gold":
+            gold += 1
+    return bronze, silver, gold
+
+
+def count_medals_by_tier(medals: list):
+    bronze = 0
+    silver = 0
+    gold = 0
+    for medal in medals:
+        if medal.tier == "bronze":
+            bronze += 1
+        elif medal.tier == "silver":
+            silver += 1
+        elif medal.tier == "gold":
+            gold += 1
+    return bronze, silver, gold
+
 
 @app.route("/")
 def page_home():
@@ -183,7 +213,8 @@ def page_guild(guild_id):
         user = None
     else:
         user = User.query.filter_by(id=session["user_id"]).first()
-    return render_template("guild.htm.j2", user=user, medals=medals, members=members, guild=guild)
+    bronze, silver, gold = count_medals_by_tier(medals)
+    return render_template("guild.htm.j2", user=user, medals=medals, members=members, guild=guild, bronze=bronze, silver=silver, gold=gold)
 
 
 @app.route("/guild/<int:guild_id>/new", methods=["GET", "POST"])
@@ -213,6 +244,20 @@ def page_newmedal(guild_id):
         db.session.add(medal)
         db.session.commit()
         return redirect("/guild/{}".format(guild_id))
+
+
+@app.route("/medal/<int:medal_id>")
+def page_medal(medal_id):
+    medal = Medal.query.filter_by(id=medal_id).first()
+    awards = Award.query.filter_by(medal_id=medal_id).join(User).all()
+    if medal is None:
+        abort(404)
+    user_id = session.get("user_id")
+    if user_id is None:
+        user = None
+    else:
+        user = User.query.filter_by(id=session["user_id"]).first()
+    return render_template("medal.htm.j2", user=user, medal=medal, awards=awards)
 
 
 @app.route("/medal/<int:medal_id>/edit", methods=["GET", "POST"])

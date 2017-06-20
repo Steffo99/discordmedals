@@ -1,26 +1,53 @@
-<div class="panel panel-default medal">
-    <div class="panel-body">
-        <div class="media">
-            <div class="media-left">
-                <span class="glyphicon glyphicon-{{ medal.icon }} {{ medal.tier }} medal-icon"></span>
-            </div>
-            <div class="media-body">
-                <h4 class="media-header medal-name">
-                    {{ medal.name }}
-                </h4>
-                <div class="medal-description">
-                    {{ medal.description }}
+{% extends "base.htm.j2" %}
+{% block title %}{{ medal }} - Discord Medals{% endblock %}
+{% block content %}
+    <div class="panel panel-default medal">
+        <div class="panel-body">
+            <div class="media">
+                <div class="media-left">
+                    <span class="glyphicon glyphicon-{{ medal.icon }} {{ medal.tier }} medal-icon"></span>
                 </div>
-                {% if medal.guild.owner_id == user.id %}
-                    <div class="medal-token" id="medal-{{ medal.id }}-token">
-                        {{ medal.token }}
+                <div class="media-body">
+                    <h4 class="media-header medal-name">
+                        {{ medal.name }}
+                    </h4>
+                    <div class="medal-description">
+                        {{ medal.description }}
                     </div>
-                    <div class="medal-actions">
-                        <a href="/medal/{{ medal.id }}/edit">Edit</a>
-                        <a href="#" onclick="regenToken({{ medal.id }})">Regen</a>
-                    </div>
-                {% endif %}
+                    {% if medal.guild.owner_id == user.id %}
+                        <div class="medal-token" id="medal-{{ medal.id }}-token">
+                            {{ medal.token }}
+                        </div>
+                        <div class="medal-actions">
+                            <a href="/medal/{{ medal.id }}/edit">Edit</a>
+                            <a href="#" onclick="regenToken({{ medal.id }})">Regen</a>
+                        </div>
+                    {% endif %}
+                </div>
             </div>
         </div>
     </div>
-</div>
+    {% if awards %}
+        <h2>
+            Awards <span class="badge">{{ awards | length }}</span>
+        </h2>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>User</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for award in awards %}
+                    <tr>
+                        <td><a href="/user/{{ award.user.id }}"><img class="small-discord-avatar" src="{{ award.user.avatar_url() }}"> {{ award.user }}</a></td>
+                        <td>{{ award.date }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        This medal has yet to be awarded to someone.
+    {% endif %}
+{% endblock %}
