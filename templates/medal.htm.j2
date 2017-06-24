@@ -1,5 +1,30 @@
 {% extends "base.htm.j2" %}
 {% block title %}{{ medal }} - Discord Medals{% endblock %}
+{% block extrahead %}
+    <script>
+        function regenToken(medalid)
+        {
+            var token_element = document.getElementById("medal-" + medalid + "-token");
+            var request = new XMLHttpRequest();
+            request.onreadystatechange = function () {
+                if(request.readyState === 4 && request.status === 200)
+                {
+                    var data = JSON.parse(request.responseText);
+                    if(data["success"])
+                    {
+                        token_element.innerHTML = data["new_token"]
+                    }
+                    else
+                    {
+                        throw new XMLHttpRequestException();
+                    }
+                }
+            };
+            request.open("GET", "/api/regentoken?token=" + token_element.innerHTML.replace(/^\s+|\s+$/g, ''), true);
+            request.send(null);
+        }
+    </script>
+{% endblock %}
 {% block content %}
     <div class="panel panel-default medal">
         <div class="panel-body">
@@ -19,8 +44,8 @@
                             {{ medal.token }}
                         </div>
                         <div class="medal-actions">
-                            <a href="/medal/{{ medal.id }}/edit">Edit</a>
-                            <a href="#" onclick="regenToken({{ medal.id }})">Regen</a>
+                            <a class="btn btn-primary" href="/medal/{{ medal.id }}/edit">Edit</a>
+                            <a class="btn btn-primary" href="#" onclick="regenToken({{ medal.id }})">Regen</a>
                         </div>
                     {% endif %}
                 </div>
@@ -34,6 +59,9 @@
         <table class="table">
             <thead>
                 <tr>
+                    {% if medal.guild.owner_id == user.id %}
+                        <th>ID</th>
+                    {% endif %}
                     <th>User</th>
                     <th>Date</th>
                 </tr>
@@ -41,6 +69,9 @@
             <tbody>
                 {% for award in awards %}
                     <tr>
+                        {% if medal.guild.owner_id == user.id %}
+                            <td><span class="darker small">{{ award.award_id }}</span></td>
+                        {% endif %}
                         <td><a href="/user/{{ award.user.id }}"><img class="small-discord-avatar" src="{{ award.user.avatar_url() }}"> {{ award.user }}</a></td>
                         <td>{{ award.date }}</td>
                     </tr>
