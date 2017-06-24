@@ -342,6 +342,40 @@ def api_awardmedal():
     db.session.add(award)
     db.session.commit()
     return jsonify({
+        "success": True,
+        "award_id": award.award_id
+    })
+
+
+@app.route("/api/revokeaward")
+def api_revokeaward():
+    token = request.args.get("token")
+    if token is None:
+        return jsonify({
+            "success": False,
+            "error": "Missing medal token"
+        })
+    medal = Medal.query.filter_by(token=token).first()
+    if medal is None:
+        return jsonify({
+            "success": False,
+            "error": "Invalid medal token"
+        })
+    award_id = request.args.get("award")
+    if award_id is None:
+        return jsonify({
+            "success": False,
+            "error": "Missing award id"
+        })
+    award = Award.query.filter_by(award_id=award_id).first()
+    if award is None:
+        return jsonify({
+            "success": False,
+            "error": "Invalid award id"
+        })
+    db.session.delete(award)
+    db.session.commit()
+    return jsonify({
         "success": True
     })
 

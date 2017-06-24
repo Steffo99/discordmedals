@@ -1,30 +1,5 @@
 {% extends "base.htm.j2" %}
 {% block title %}{{ guild }} - Discord Medals{% endblock %}
-{% block extrahead %}
-    <script>
-        function regenToken(medalid)
-        {
-            var token_element = document.getElementById("medal-" + medalid + "-token");
-            var request = new XMLHttpRequest();
-            request.onreadystatechange = function () {
-                if(request.readyState === 4 && request.status === 200)
-                {
-                    var data = JSON.parse(request.responseText);
-                    if(data["success"])
-                    {
-                        token_element.innerHTML = data["new_token"]
-                    }
-                    else
-                    {
-                        throw new XMLHttpRequestException();
-                    }
-                }
-            };
-            request.open("GET", "/api/regentoken?token=" + token_element.innerHTML.replace(/^\s+|\s+$/g, ''), true);
-            request.send(null);
-        }
-    </script>
-{% endblock %}
 {% block content %}
     <h1>
         <img class="discord-avatar" src="{{ guild.icon_url(size=64) }}"> {{ guild }}
@@ -82,10 +57,6 @@
                                         {% if medal.guild.owner_id == user.id %}
                                             <div class="medal-token" id="medal-{{ medal.id }}-token">
                                                 {{ medal.token }}
-                                            </div>
-                                            <div class="medal-actions">
-                                                <a href="/medal/{{ medal.id }}/edit">Edit</a>
-                                                <a href="#" onclick="regenToken({{ medal.id }})">Regen</a>
                                             </div>
                                         {% endif %}
                                     </div>
