@@ -278,8 +278,7 @@ def page_editmedal(medal_id):
         description = request.form["description"]
         if len(description) > 512:
             abort(400)
-        icon = request.form["icon"]
-        # TODO: possibile injection qui
+        icon = request.form["icon"].split(" ")[0]
         tier = request.form["tier"]
         if tier != "bronze" and tier != "silver" and tier != "gold":
             abort(400)
@@ -399,6 +398,30 @@ def api_revoketoken():
     return jsonify({
         "success": True,
         "new_token": medal.token
+    })
+
+
+@app.route("/api/listmedals")
+def api_listmedals():
+    guild_id = request.args.get("guild")
+    if guild_id is None:
+        return jsonify({
+            "success": False,
+            "error": "Missing Guild ID"
+        })
+    medals = Medal.query.filter_by(guild_id=guild_id).all()
+    result = list()
+    for medal in medals:
+        result.append({
+            "id": medal.id,
+            "name": medal.name,
+            "description": medal.description,
+            "icon": medal.icon,
+            "tier": medal.tier
+        })
+    return jsonify({
+        "success": True,
+        "data": result
     })
 
 
