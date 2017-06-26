@@ -278,8 +278,7 @@ def page_editmedal(medal_id):
         description = request.form["description"]
         if len(description) > 512:
             abort(400)
-        icon = request.form["icon"]
-        # TODO: possibile injection qui
+        icon = request.form["icon"].split(" ")[0]
         tier = request.form["tier"]
         if tier != "bronze" and tier != "silver" and tier != "gold":
             abort(400)
