@@ -1,36 +1,37 @@
-{% autoescape %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{% block title %}{% endblock %}</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    {% block extrahead %}{% endblock %}
-</head>
-<body>
-    <nav id="navbar" class="navbar navbar-default navbar-static-top">
-        <div class="container-fluid">
-            <a href="/" class="navbar-brand">
-                Discord Medals
-            </a>
-            <div id="navbar-elements">
-                {% if user %}
-                    <p class="navbar-text">
-                        Logged in as <a href="/user/{{ user.id }}"><img class="small-discord-avatar" src="{{ user.avatar_url() }}"> {{ user }}</a>
-                    </p>
-                    <a href="/logout" class="btn btn-danger navbar-btn">Logout</a>
-                {% else %}
-                    <a href="/login" class="btn btn-primary navbar-btn">Login</a>
-                {% endif %}
+{% autoescape true %}
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>{% block title %}{% endblock %}</title>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+        <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+        {% block extrahead %}{% endblock %}
+    </head>
+    <body>
+        <nav id="navbar" class="navbar navbar-default navbar-static-top">
+            <div class="container-fluid">
+                <a href="/" class="navbar-brand">
+                    Discord Medals
+                </a>
+                <div id="navbar-elements">
+                    {% if user %}
+                        <p class="navbar-text">
+                            Logged in as <a href="/user/{{ user.id }}"><img class="small-discord-avatar" src="{{ user.avatar_url() }}"> {{ user }}</a>
+                        </p>
+                        <a href="/logout" class="btn btn-danger navbar-btn">Logout</a>
+                    {% else %}
+                        <a href="/login" class="btn btn-primary navbar-btn">Login</a>
+                    {% endif %}
+                </div>
+            </div>
+        </nav>
+        <div class="container">
+            <div id="content">
+                {% block content %}{% endblock %}
             </div>
         </div>
-    </nav>
-    <div class="container">
-        <div id="content">
-            {% block content %}{% endblock %}
-        </div>
-    </div>
-</body>
-</html>
+    </body>
+    </html>
+{% endautoescape %}

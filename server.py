@@ -401,6 +401,27 @@ def api_revoketoken():
     })
 
 
+@app.route("/api/listmedals")
+def api_listmedals():
+    guild_id = request.args.get("guild")
+    if guild_id is None:
+        return jsonify({
+            "success": False,
+            "error": "Missing Guild ID"
+        })
+    medals = Medal.query.filter_by(guild_id=guild_id).all()
+    result = list()
+    for medal in medals:
+        result.append({
+            "id": medal.id,
+            "name": medal.name,
+            "description": medal.description,
+            "icon": medal.icon,
+            "tier": medal.tier
+        })
+    return jsonify(result)
+
+
 @app.route("/login")
 def page_login():
     scope = ["identify", "guilds"]
