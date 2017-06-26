@@ -419,7 +419,10 @@ def api_listmedals():
             "icon": medal.icon,
             "tier": medal.tier
         })
-    return jsonify(result)
+    return jsonify({
+        "success": True,
+        "data": result
+    })
 
 
 @app.route("/login")
