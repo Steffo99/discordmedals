@@ -27,7 +27,7 @@
     </div>
     <div id="medals">
         <h2>
-            Medals {% if bronze %}<span class="badge bronze">{{ bronze }}</span>{% endif %}{% if silver %}<span class="badge silver">{{ silver }}</span>{% endif %}{% if gold %}<span class="badge gold">{{ gold }}</span>{% endif %}
+            Medals
             {% if guild.owner_id == user.id %}
                 <a href="/guild/{{ guild.id }}/new" class="btn btn-success btn-sm">
                     <span class="glyphicon glyphicon-plus"></span> New
