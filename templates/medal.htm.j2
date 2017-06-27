@@ -46,6 +46,32 @@
             request.open("GET", "/api/awardmedal?token=" + token_element.innerHTML.replace(/^\s+|\s+$/g, '') + "&user=" + user, true);
             request.send(null);
         }
+
+        function revokeAward(awardid) {
+            var token_element = document.getElementById("medal-" + {{ medal.id }} + "-token");
+            if(token_element === null)
+            {
+                return;
+            }
+            var request = new XMLHttpRequest();
+            request.onreadystatechange = function () {
+                if(request.readyState === 4 && request.status === 200)
+                {
+                    var data = JSON.parse(request.responseText);
+                    if(data["success"])
+                    {
+                        //Todo: remove without reloading
+                        location.reload();
+                    }
+                    else
+                    {
+                        alert("Error while revoking the award")
+                    }
+                }
+            };
+            request.open("GET", "/api/revokeaward?token=" + token_element.innerHTML.replace(/^\s+|\s+$/g, '') + "&award=" + awardid, true);
+            request.send(null);
+        }
     </script>
 {% endblock %}
 {% block content %}
@@ -62,20 +88,24 @@
                     <div class="medal-description">
                         {{ medal.description }}
                     </div>
-                    {% if medal.guild.owner_id == user.id %}
-                        <div class="medal-token" id="medal-{{ medal.id }}-token">
-                            {{ medal.token }}
-                        </div>
-                        <div class="medal-actions">
-                            <a class="btn btn-primary" href="/medal/{{ medal.id }}/edit">Edit</a>
-                            <a class="btn btn-danger" href="#" onclick="regenToken({{ medal.id }})">Regen</a>
-                            <a class="btn btn-success" href="#" onclick="awardMedal({{ medal.id }})">Award</a>
-                        </div>
-                    {% endif %}
                 </div>
             </div>
         </div>
     </div>
+    {% if medal.guild.owner_id == user.id %}
+        <h2>
+            Admin tools
+        </h2>
+        <div id="medal-{{ medal.id }}-token">
+            Token: <code>{{ medal.token }}</code>
+        </div>
+        <br>
+        <div class="medal-actions">
+            <a class="btn btn-primary btn-sm" href="/medal/{{ medal.id }}/edit">Edit</a>
+            <a class="btn btn-warning btn-sm" href="#" onclick="regenToken({{ medal.id }})">Regen</a>
+            <a class="btn btn-success btn-sm" href="#" onclick="awardMedal({{ medal.id }})">Award</a>
+        </div>
+    {% endif %}
     {% if awards %}
         <h2>
             Awards <span class="badge">{{ awards | length }}</span>
@@ -83,21 +113,21 @@
         <table class="table">
             <thead>
                 <tr>
-                    {% if medal.guild.owner_id == user.id %}
-                        <th>ID</th>
-                    {% endif %}
                     <th>User</th>
                     <th>Date</th>
+                    {% if medal.guild.owner_id == user.id %}
+                        <th></th>
+                    {% endif %}
                 </tr>
             </thead>
             <tbody>
                 {% for award in awards %}
-                    <tr>
-                        {% if medal.guild.owner_id == user.id %}
-                            <td><span class="darker small">{{ award.award_id }}</span></td>
-                        {% endif %}
+                    <tr id="award-{{ award.award_id }}">
                         <td><a href="/user/{{ award.user.id }}"><img class="small-discord-avatar" src="{{ award.user.avatar_url() }}"> {{ award.user }}</a></td>
                         <td>{{ award.date }}</td>
+                        {% if medal.guild.owner_id == user.id %}
+                            <td><a href="#" class="btn btn-danger btn-xs" onclick="revokeAward({{ award.award_id }})">Revoke</a></td>
+                        {% endif %}
                     </tr>
                 {% endfor %}
             </tbody>
