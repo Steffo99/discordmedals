@@ -63,4 +63,18 @@
             </div>
         {% endfor %}
     </div>
+    {% if guild.owner_id == user.id %}
+    <div id="webhook">
+        <h2>
+            Webhook
+        </h2>
+        <form method="POST" action="/guild/{{ guild.id }}/setwebhook">
+            <div class="form-group">
+                <label for="input-webhook">URL</label>
+                <input type="text" class="form-control" id="input-webhook" name="webhook" value="{{ guild.webhook }}">
+            </div>
+            <input type="submit" class="btn btn-success" value="Save">
+        </form>
+    </div>
+    {% endif %}
 {% endblock %}

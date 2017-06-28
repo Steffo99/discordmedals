@@ -1,6 +1,7 @@
 import datetime
 from flask import Flask, redirect, session, request, render_template, abort, jsonify
 from flask_sqlalchemy import SQLAlchemy
+import requests
 from requests_oauthlib import OAuth2Session
 from uuid import uuid4
 import os
@@ -66,6 +67,7 @@ class Guild(db.Model):
     name = db.Column(db.String, nullable=False)
     icon = db.Column(db.String)
     owner_id = db.Column(db.Integer, db.ForeignKey("user.id"))
+    webhook = db.Column(db.String)
     owner = db.relationship("User", backref="owns")
     members = db.relationship("Membership")
 
@@ -138,8 +140,8 @@ class Award(db.Model):
         return "<Database entry for Medal {} awarded to {} on {}>".format(self.medal_id, self.user_id, self.date)
 
 
-if not os.path.exists(os.path.dirname(__file__).join("database.sqlite")):
-    db.create_all()
+#if not os.path.exists(os.path.dirname(__file__).join("database.sqlite")):
+db.create_all()
 
 
 oauth2_client_id = os.environ["DISCORD_OAUTH_CLIENT_ID"]
@@ -246,6 +248,22 @@ def page_newmedal(guild_id):
         return redirect("/guild/{}".format(guild_id))
 
 
+@app.route("/guild/<int:guild_id>/setwebhook", methods=["GET", "POST"])
+def page_setwebhook(guild_id):
+    if request.method == "GET":
+        return "wtf"
+    guild = Guild.query.filter_by(id=guild_id).first()
+    if guild is None:
+        abort(404)
+    user_id = session.get("user_id")
+    if user_id is None or int(user_id) != int(guild.owner_id):
+        abort(403)
+    # TODO: validate webhook
+    guild.webhook = request.form["webhook"]
+    db.session.commit()
+    return redirect("/guild/{}".format(guild_id))
+
+
 @app.route("/medal/<int:medal_id>")
 def page_medal(medal_id):
     medal = Medal.query.filter_by(id=medal_id).first()
@@ -340,6 +358,10 @@ def api_awardmedal():
     award = Award(medal_id=medal.id, user_id=user.id, date=datetime.datetime.now())
     db.session.add(award)
     db.session.commit()
+    # TODO: custom webhook messages
+    requests.post(medal.guild.webhook, data={
+        "content": "<@{}> has been awarded the **{}** medal!".format(user.id, str(medal).replace("*", r"\*").replace("_", r"\_").replace("`", r"\`").replace("~", r"\~"))
+    })
     return jsonify({
         "success": True,
         "award_id": award.award_id
