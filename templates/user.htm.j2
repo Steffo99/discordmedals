@@ -49,4 +49,14 @@
             {% endfor %}
         {% endfor %}
     </div>
+    {% if user == queried_user %}
+        <div id="settings">
+            <h2>
+                Settings
+            </h2>
+            <div>
+                Your token: <code id="user-{{ user.id }}-token">{{ user.token }}</code> <a href="/self/regentoken" class="btn btn-warning btn-sm">Regen</a>
+            </div>
+        </div>
+    {% endif %}
 {% endblock %}

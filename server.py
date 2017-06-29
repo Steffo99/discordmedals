@@ -1,4 +1,6 @@
 import datetime
+
+import re
 from flask import Flask, redirect, session, request, render_template, abort, jsonify
 from flask_sqlalchemy import SQLAlchemy
 import requests
@@ -34,6 +36,7 @@ class User(db.Model):
     username = db.Column(db.String, nullable=False)
     discriminator = db.Column(db.Integer, nullable=False)
     avatar = db.Column(db.String)
+    token = db.Column(db.String, nullable=False)
     memberships = db.relationship("Membership")
 
     def __init__(self, data: dict):
@@ -44,6 +47,7 @@ class User(db.Model):
             self.avatar = data["avatar"]
         else:
             self.avatar = None
+        self.token = "U-" + uuid4().hex
 
     def avatar_url(self, size=256):
         if self.avatar is None:
@@ -68,6 +72,7 @@ class Guild(db.Model):
     icon = db.Column(db.String)
     owner_id = db.Column(db.Integer, db.ForeignKey("user.id"))
     webhook = db.Column(db.String)
+    webhookstring = db.Column(db.String)
     owner = db.relationship("User", backref="owns")
     members = db.relationship("Membership")
 
@@ -80,6 +85,7 @@ class Guild(db.Model):
             self.icon = None
         if guild_data["owner"]:
             self.owner_id = from_user_id
+        self.webhookstring = "<@{user_id}> has been awarded the **{medal_name}** medal!"
 
     def icon_url(self, size=256):
         # Size can be up to 512px...?
@@ -112,7 +118,7 @@ class Medal(db.Model):
         self.icon = icon
         self.tier = tier
         self.guild_id = guild_id
-        self.token = uuid4().hex
+        self.token = "M-" + uuid4().hex
 
     def __str__(self):
         return self.name
@@ -195,6 +201,10 @@ def count_medals_by_tier(medals: list):
     return bronze, silver, gold
 
 
+def escape_string_for_discord(string: str):
+    return str(string).replace("*", r"\*").replace("_", r"\_").replace("`", r"\`").replace("~", r"\~").replace("<", r"\<").replace("#", "#\u200B")
+
+
 @app.route("/")
 def page_home():
     user_id = session.get("user_id")
@@ -237,8 +247,7 @@ def page_newmedal(guild_id):
         description = request.form["description"]
         if len(description) > 512:
             abort(400)
-        icon = request.form["icon"]
-        # TODO: possibile injection qui
+        icon = request.form["icon"].split(" ")[0]
         tier = request.form["tier"]
         if tier != "bronze" and tier != "silver" and tier != "gold":
             abort(400)
@@ -258,8 +267,12 @@ def page_setwebhook(guild_id):
     user_id = session.get("user_id")
     if user_id is None or int(user_id) != int(guild.owner_id):
         abort(403)
-    # TODO: validate webhook
+    if re.search(r"^https:\/\/(?:canary.|ptb.)?discordapp\.com\/api\/webhooks\/[0-9]*\/[0-9A-Za-z_]{68}$", request.form["webhook"], re.IGNORECASE) is None:
+        return "lul"
     guild.webhook = request.form["webhook"]
+    if not ("{medal_name}" in request.form["webhookstring"] and "{user_id}" in request.form["webhookstring"]):
+        abort(400)
+    guild.webhookstring = request.form["webhookstring"]
     db.session.commit()
     return redirect("/guild/{}".format(guild_id))
 
@@ -326,6 +339,17 @@ def page_user(user_id):
     return render_template("user.htm.j2", user=logged_user, queried_user=user, guilds=enumerate(guilds), award_groups=award_groups)
 
 
+@app.route("/self/regentoken")
+def page_user_revoketoken():
+    logged_user_id = session.get("user_id")
+    user = User.query.filter_by(id=logged_user_id).first()
+    if user is None:
+        abort(404)
+    user.token = "U-" + uuid4().hex
+    db.session.commit()
+    return redirect("/user/{}".format(user.id))
+
+
 @app.route("/api/awardmedal")
 def api_awardmedal():
     token = request.args.get("token")
@@ -358,10 +382,10 @@ def api_awardmedal():
     award = Award(medal_id=medal.id, user_id=user.id, date=datetime.datetime.now())
     db.session.add(award)
     db.session.commit()
-    # TODO: custom webhook messages
-    requests.post(medal.guild.webhook, data={
-        "content": "<@{}> has been awarded the **{}** medal!".format(user.id, str(medal).replace("*", r"\*").replace("_", r"\_").replace("`", r"\`").replace("~", r"\~"))
-    })
+    if medal.guild.webhook is not None:
+        requests.post(medal.guild.webhook, data={
+            "content": medal.guild.webhookstring.format(user_id=user.id, medal_name=escape_string_for_discord(medal))
+        })
     return jsonify({
         "success": True,
         "award_id": award.award_id
@@ -415,7 +439,7 @@ def api_revoketoken():
             "success": False,
             "error": "Invalid medal token"
         })
-    medal.token = uuid4().hex
+    medal.token = "M-" + uuid4().hex
     db.session.commit()
     return jsonify({
         "success": True,

@@ -72,6 +72,12 @@
             <div class="form-group">
                 <label for="input-webhook">URL</label>
                 <input type="text" class="form-control" id="input-webhook" name="webhook" value="{{ guild.webhook }}">
+                <p class="help-block">Get the webhook URL from your Discord Server.</p>
+            </div>
+            <div class="form-group">
+                <label for="input-webhookstring">Text</label>
+                <input type="text" class="form-control" id="input-webhookstring" name="webhookstring" value="{{ guild.webhookstring }}">
+                <p class="help-block"><i>{user_id}</i> and <i>{medal_name}</i> <b>must</b> be present in the string.</p>
             </div>
             <input type="submit" class="btn btn-success" value="Save">
         </form>
