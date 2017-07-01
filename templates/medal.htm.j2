@@ -126,15 +126,15 @@
     {% if medal.guild.owner_id == user.id %}
         <div id="admin">
             <h2>
-                Admin tools
+                Administration
             </h2>
             <div>
-                Token: <code id="medal-{{ medal.id }}-token">{{ medal.token }}</code>
+                Medal token: <code id="medal-{{ medal.id }}-token">{{ medal.token }}</code><a class="btn btn-warning btn-sm" href="#" onclick="regenToken({{ medal.id }})">Regen</a><br>
+                <small>Check the <a href="https://github.com/Steffo99/discordmedals/wiki/API">API help page</a> for more information on how to use this token.</small>
             </div>
             <br>
             <div class="medal-actions">
                 <a class="btn btn-primary btn-sm" href="/medal/{{ medal.id }}/edit">Edit</a>
-                <a class="btn btn-warning btn-sm" href="#" onclick="regenToken({{ medal.id }})">Regen</a>
                 <a class="btn btn-success btn-sm" href="#" onclick="awardMedal({{ medal.id }})">Award</a>
             </div>
         </div>

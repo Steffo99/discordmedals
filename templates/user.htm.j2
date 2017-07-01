@@ -55,7 +55,8 @@
                 Settings
             </h2>
             <div>
-                Your token: <code id="user-{{ user.id }}-token">{{ user.token }}</code> <a href="/self/regentoken" class="btn btn-warning btn-sm">Regen</a>
+                Your token: <code id="user-{{ user.id }}-token">{{ user.token }}</code><a href="/self/regentoken" class="btn btn-warning btn-sm">Regen</a><br>
+                <small>Don't give away this token! It may result in your medals account being compromised!</small>
             </div>
         </div>
     {% endif %}
