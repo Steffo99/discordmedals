@@ -27,7 +27,7 @@
     </div>
     <div id="medals">
         <h2>
-            Medals {% if bronze %}<span class="badge bronze">{{ bronze }}</span>{% endif %}{% if silver %}<span class="badge silver">{{ silver }}</span>{% endif %}{% if gold %}<span class="badge gold">{{ gold }}</span>{% endif %}
+            Medals
             {% if guild.owner_id == user.id %}
                 <a href="/guild/{{ guild.id }}/new" class="btn btn-success btn-sm">
                     <span class="glyphicon glyphicon-plus"></span> New
@@ -63,4 +63,24 @@
             </div>
         {% endfor %}
     </div>
+    {% if guild.owner_id == user.id %}
+    <div id="webhook">
+        <h2>
+            Webhook
+        </h2>
+        <form method="POST" action="/guild/{{ guild.id }}/setwebhook">
+            <div class="form-group">
+                <label for="input-webhook">URL</label>
+                <input type="text" class="form-control" id="input-webhook" name="webhook" value="{{ guild.webhook }}">
+                <p class="help-block">Get the webhook URL from your Discord Server.</p>
+            </div>
+            <div class="form-group">
+                <label for="input-webhookstring">Text</label>
+                <input type="text" class="form-control" id="input-webhookstring" name="webhookstring" value="{{ guild.webhookstring }}">
+                <p class="help-block"><i>{user_id}</i> and <i>{medal_name}</i> <b>must</b> be present in the string.</p>
+            </div>
+            <input type="submit" class="btn btn-success" value="Save">
+        </form>
+    </div>
+    {% endif %}
 {% endblock %}

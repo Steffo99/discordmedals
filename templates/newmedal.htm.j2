@@ -76,7 +76,7 @@
             </div>
         </div>
     </div>
-    <form method="POST" target="{{ target }}">
+    <form method="POST" action="{{ target }}">
         <div class="form-group">
             <label for="input-name">Name</label>
             <input type="text" class="form-control" id="input-name" name="name" {% if medal %}value="{{ medal.name }}"{% endif %} oninput="updateName()">
