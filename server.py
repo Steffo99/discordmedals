@@ -17,8 +17,8 @@ class Membership(db.Model):
     __tablename__ = "membership"
 
     permissions = db.Column(db.Integer, nullable=False)
-    guild_id = db.Column(db.Integer, db.ForeignKey("guild.id"), primary_key=True)
-    member_id = db.Column(db.Integer, db.ForeignKey("user.id"), primary_key=True)
+    guild_id = db.Column(db.BigInteger, db.ForeignKey("guild.id"), primary_key=True)
+    member_id = db.Column(db.BigInteger, db.ForeignKey("user.id"), primary_key=True)
 
     def __init__(self, guild_data: dict, from_user_id: int):
         self.member_id = from_user_id
@@ -32,7 +32,7 @@ class Membership(db.Model):
 class User(db.Model):
     __tablename__ = "user"
 
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.BigInteger, primary_key=True)
     username = db.Column(db.String, nullable=False)
     discriminator = db.Column(db.Integer, nullable=False)
     avatar = db.Column(db.String)
@@ -67,10 +67,10 @@ class User(db.Model):
 class Guild(db.Model):
     __tablename__ = "guild"
 
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.BigInteger, primary_key=True)
     name = db.Column(db.String, nullable=False)
     icon = db.Column(db.String)
-    owner_id = db.Column(db.Integer, db.ForeignKey("user.id"))
+    owner_id = db.Column(db.BigInteger, db.ForeignKey("user.id"))
     webhook = db.Column(db.String)
     webhookstring = db.Column(db.String)
     owner = db.relationship("User", backref="owns")
@@ -109,7 +109,7 @@ class Medal(db.Model):
     icon = db.Column(db.String)
     tier = db.Column(db.String, nullable=False)
     token = db.Column(db.String, nullable=False)
-    guild_id = db.Column(db.Integer, db.ForeignKey("guild.id"))
+    guild_id = db.Column(db.BigInteger, db.ForeignKey("guild.id"))
     guild = db.relationship("Guild", backref="medals")
 
     def __init__(self, name: str, description: str, icon: str, tier: str, guild_id: int):
@@ -133,7 +133,7 @@ class Award(db.Model):
     award_id = db.Column(db.Integer, primary_key=True)
     date = db.Column(db.DateTime, nullable=False)
     medal_id = db.Column(db.Integer, db.ForeignKey("medal.id"))
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
+    user_id = db.Column(db.BigInteger, db.ForeignKey("user.id"))
     medal = db.relationship("Medal", backref="awards")
     user = db.relationship("User", backref="awards")
 
