@@ -1,3 +1,5 @@
 .idea
 __pycache__
 *.sqlite
+application.wsgi
+error.log
