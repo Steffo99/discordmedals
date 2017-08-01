@@ -10,7 +10,7 @@ import os
 
 app = Flask("discordmedals")
 app.secret_key = os.environ["FLASK_SECRET_KEY"]
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///database.sqlite"
+app.config["SQLALCHEMY_DATABASE_URI"] = os.environ["DATABASE_URI"]
 db = SQLAlchemy(app)
 
 class Membership(db.Model):
