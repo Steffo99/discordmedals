@@ -257,18 +257,16 @@ def page_newmedal(guild_id):
         return redirect("/guild/{}".format(guild_id))
 
 
-@app.route("/guild/<int:guild_id>/setwebhook", methods=["GET", "POST"])
+@app.route("/guild/<int:guild_id>/setwebhook", methods=["POST"])
 def page_setwebhook(guild_id):
-    if request.method == "GET":
-        return "wtf"
     guild = Guild.query.filter_by(id=guild_id).first()
     if guild is None:
         abort(404)
     user_id = session.get("user_id")
     if user_id is None or int(user_id) != int(guild.owner_id):
         abort(403)
-    if re.search(r"^https:\/\/(?:canary.|ptb.)?discordapp\.com\/api\/webhooks\/[0-9]*\/[0-9A-Za-z_]{68}$", request.form["webhook"], re.IGNORECASE) is None:
-        return "lul"
+    if re.search(r"^https:\/\/(?:canary.|ptb.)?discordapp\.com\/api\/webhooks\/[0-9]*\/[0-9A-Za-z_\-]{68}$", request.form["webhook"], re.IGNORECASE) is None:
+        abort(400)
     guild.webhook = request.form["webhook"]
     if not ("{medal_name}" in request.form["webhookstring"] and "{user_id}" in request.form["webhookstring"]):
         abort(400)

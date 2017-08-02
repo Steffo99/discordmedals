@@ -14,22 +14,22 @@
             updateName();
             updateDescription();
             updateMedalClass();
-        }
+        };
 
         function updateName()
         {
-            mname.innerHTML = document.getElementById("input-name").value
+            mname.textContent = document.getElementById("input-name").value;
         }
 
         function updateDescription()
         {
-            description.innerHTML = document.getElementById("input-description").value
+            description.textContent = document.getElementById("input-description").value;
         }
 
         function updateMedalClass()
         {
             var classstring = "glyphicon glyphicon-";
-            classstring += document.getElementById("input-icon").value;
+            classstring += document.getElementById("input-icon").value.split(" ")[0];
 
             if(document.getElementById("input-bronze").checked)
             {
@@ -82,11 +82,11 @@
             <input type="text" class="form-control" id="input-name" name="name" {% if medal %}value="{{ medal.name }}"{% endif %} oninput="updateName()">
         </div>
         <div class="form-group">
-            <label for="input-name">Description</label>
+            <label for="input-description">Description</label>
             <textarea class="form-control" id="input-description" name="description" oninput="updateDescription()">{% if medal %}{{ medal.description }}{% endif %}</textarea>
         </div>
         <div class="form-group">
-            <label for="input-name">Icon</label>
+            <label for="input-icon">Icon</label>
             <input type="text" class="form-control" id="input-icon" name="icon" {% if medal %}value="{{ medal.icon }}"{% endif %} oninput="updateMedalClass()">
         </div>
         <label for="input-tier">Tier</label>
