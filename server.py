@@ -209,7 +209,7 @@ def escape_string_for_discord(string: str):
 def page_home():
     user_id = session.get("user_id")
     if user_id is None:
-        return render_template("base.htm.j2", user=None)
+        return render_template("base.htm", user=None)
     return redirect("/user/{}".format(user_id))
 
 
@@ -226,7 +226,7 @@ def page_guild(guild_id):
     else:
         user = User.query.filter_by(id=session["user_id"]).first()
     bronze, silver, gold = count_medals_by_tier(medals)
-    return render_template("guild.htm.j2", user=user, medals=medals, members=members, guild=guild, bronze=bronze, silver=silver, gold=gold)
+    return render_template("guild.htm", user=user, medals=medals, members=members, guild=guild, bronze=bronze, silver=silver, gold=gold)
 
 
 @app.route("/guild/<int:guild_id>/new", methods=["GET", "POST"])
@@ -239,7 +239,7 @@ def page_newmedal(guild_id):
         abort(403)
     if request.method == "GET":
         user = User.query.filter_by(id=user_id).first()
-        return render_template("newmedal.htm.j2", user=user, target="new")
+        return render_template("newmedal.htm", user=user, target="new")
     elif request.method == "POST":
         name = request.form["name"]
         if len(name) > 128:
@@ -288,7 +288,7 @@ def page_medal(medal_id):
         user = None
     else:
         user = User.query.filter_by(id=session["user_id"]).first()
-    return render_template("medal.htm.j2", user=user, medal=medal, awards=awards)
+    return render_template("medal.htm", user=user, medal=medal, awards=awards)
 
 
 @app.route("/medal/<int:medal_id>/edit", methods=["GET", "POST"])
@@ -301,7 +301,7 @@ def page_editmedal(medal_id):
         abort(403)
     if request.method == "GET":
         user = User.query.filter_by(id=user_id).first()
-        return render_template("newmedal.htm.j2", user=user, medal=medal, target="edit")
+        return render_template("newmedal.htm", user=user, medal=medal, target="edit")
     elif request.method == "POST":
         name = request.form["name"]
         if len(name) > 128:
@@ -336,7 +336,7 @@ def page_user(user_id):
         logged_user = None
     else:
         logged_user = User.query.filter_by(id=logged_user_id).first()
-    return render_template("user.htm.j2", user=logged_user, queried_user=user, guilds=enumerate(guilds), award_groups=award_groups)
+    return render_template("user.htm", user=logged_user, queried_user=user, guilds=enumerate(guilds), award_groups=award_groups)
 
 
 @app.route("/self/regentoken")
