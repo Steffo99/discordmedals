@@ -111,5 +111,5 @@ h3 .discord-avatar, .discord-avatar {
 }
 
 .clickable {
-    cursor: hand;
+    cursor: pointer;
 }
