@@ -1,0 +1,78 @@
+{% extends "base.htm" %}
+{% block title %}{{ medal }} - Medals {% endblock %}
+{% block extrahead %}
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+    <script>
+        function onUserClick() {
+            $(this).toggleClass("active");
+        }
+
+        function singleSubmit(index) {
+            if(!$(this).hasClass("active"))
+            {
+                return;
+            }
+            var token_element = document.getElementById("medal-" + {{ medal.id }} + "-token");
+            var request = new XMLHttpRequest();
+            request.onreadystatechange = function () {
+                if(request.readyState === 4 && request.status === 200)
+                {
+                    var data = JSON.parse(request.responseText);
+                    if(! data["success"])
+                    {
+                        alert("Error while awarding the medal")
+                    }
+                }
+            };
+            request.open("GET", "/api/awardmedal?token=" + token_element.innerHTML.replace(/^\s+|\s+$/g, '') + "&user=" + $(this).attr("userid"), true);
+            request.send(null);
+        }
+
+        function listSubmit() {
+            $("#submit").addClass("disabled");
+            $("#submit").off("click");
+            $(".user").each(singleSubmit);
+            window.location.href = "/medal/{{ medal.id }}"
+        }
+
+        window.onload = function() {
+            $(".user").click(onUserClick);
+        }
+    </script>
+{% endblock %}
+{% block content %}
+    <h1>
+        Award medal
+    </h1>
+    <div class="panel panel-default medal">
+        <div class="panel-body">
+            <div class="media">
+                <div class="media-left">
+                    <span class="glyphicon glyphicon-{{ medal.icon }} {{ medal.tier }} medal-icon"></span>
+                </div>
+                <div class="media-body">
+                    <h4 class="media-header medal-name">
+                        {{ medal.name }}
+                    </h4>
+                    <div class="medal-description">
+                        {{ medal.description }}
+                    </div>
+                    <code id="medal-{{ medal.id }}-token" class="hidden">{{ medal.token }}</code>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div>
+        <h3>
+            Award the medal to
+        </h3>
+    </div>
+    <div id="user-list">
+        <ul class="list-group">
+            {% for user in members %}
+                <li class="list-group-item user" id="user-{{ user.id }}" userid="{{ user.id }}"><img class="small-discord-avatar" src="{{ user.avatar_url() }}"> {{ user.username }}#{{ user.discriminator }}</li>
+            {% endfor %}
+        </ul>
+        <button id="submit" onclick="listSubmit()" class="btn btn-primary">Award</button>
+    </div>
+{% endblock %}

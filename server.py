@@ -319,6 +319,19 @@ def page_editmedal(medal_id):
         return redirect("/guild/{}".format(medal.guild_id))
 
 
+@app.route("/medal/<int:medal_id>/award")
+def page_awardmedal(medal_id):
+    medal = Medal.query.filter_by(id=medal_id).join(Guild).first()
+    if medal is None:
+        abort(404)
+    user_id = session.get("user_id")
+    if user_id is None or int(user_id) != int(medal.guild.owner_id):
+        abort(403)
+    user = User.query.filter_by(id=user_id).first()
+    members = User.query.join(Membership).filter_by(guild_id=medal.guild.id).all()
+    return render_template("awardmedal.htm", user=user, medal=medal, members=members)
+
+
 @app.route("/user/<int:user_id>")
 def page_user(user_id):
     user = User.query.filter_by(id=user_id).first()

@@ -103,3 +103,9 @@ h3 .discord-avatar, .discord-avatar {
 .darker {
     color: rgba(100%, 100%, 100%, 0.5);
 }
+
+.list-group-item {
+    background-color: #2F3136;
+    color: rgba(100%, 100%, 100%, 0.7);
+    border: none;
+}
