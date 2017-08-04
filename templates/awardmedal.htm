@@ -3,6 +3,9 @@
 {% block extrahead %}
     <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
     <script>
+        var sent = 0;
+        var received = 0;
+
         function onUserClick() {
             $(this).toggleClass("active");
         }
@@ -18,9 +21,13 @@
                 if(request.readyState === 4 && request.status === 200)
                 {
                     var data = JSON.parse(request.responseText);
-                    if(! data["success"])
-                    {
+                    if(! data["success"]) {
                         alert("Error while awarding the medal")
+                    }
+                    received += 1;
+                    if(received === sent)
+                    {
+                        window.location.href = "/medal/{{ medal.id }}";
                     }
                 }
             };
@@ -29,10 +36,12 @@
         }
 
         function listSubmit() {
-            $("#submit").addClass("disabled");
-            $("#submit").off("click");
-            $(".user").each(singleSubmit);
-            window.location.href = "/medal/{{ medal.id }}"
+            var submit_btn = $("#submit");
+            submit_btn.addClass("disabled");
+            submit_btn.off("click");
+            var users = $(".user");
+            sent = users.size();
+            users.each(singleSubmit);
         }
 
         window.onload = function() {
@@ -70,7 +79,7 @@
     <div id="user-list">
         <ul class="list-group">
             {% for user in members %}
-                <li class="list-group-item user" id="user-{{ user.id }}" userid="{{ user.id }}"><img class="small-discord-avatar" src="{{ user.avatar_url() }}"> {{ user.username }}#{{ user.discriminator }}</li>
+                <li class="list-group-item user clickable" id="user-{{ user.id }}" userid="{{ user.id }}"><img class="small-discord-avatar" src="{{ user.avatar_url() }}"> {{ user.username }}#{{ user.discriminator }}</li>
             {% endfor %}
         </ul>
         <button id="submit" onclick="listSubmit()" class="btn btn-primary">Award</button>

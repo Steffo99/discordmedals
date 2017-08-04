@@ -109,3 +109,7 @@ h3 .discord-avatar, .discord-avatar {
     color: rgba(100%, 100%, 100%, 0.7);
     border: none;
 }
+
+.clickable {
+    cursor: hand;
+}
