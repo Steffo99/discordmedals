@@ -11,10 +11,6 @@
         }
 
         function singleSubmit(index) {
-            if(!$(this).hasClass("active"))
-            {
-                return;
-            }
             var token_element = document.getElementById("medal-" + {{ medal.id }} + "-token");
             var request = new XMLHttpRequest();
             request.onreadystatechange = function () {
@@ -39,7 +35,7 @@
             var submit_btn = $("#submit");
             submit_btn.addClass("disabled");
             submit_btn.off("click");
-            var users = $(".user");
+            var users = $(".user.active");
             sent = users.size();
             users.each(singleSubmit);
         }
