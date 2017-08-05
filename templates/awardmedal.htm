@@ -5,13 +5,13 @@
     <script>
         var sent = 0;
         var received = 0;
+        var token = {{ medal.token }};
 
         function onUserClick() {
             $(this).toggleClass("active");
         }
 
         function singleSubmit(index) {
-            var token_element = document.getElementById("medal-" + {{ medal.id }} + "-token");
             var request = new XMLHttpRequest();
             request.onreadystatechange = function () {
                 if(request.readyState === 4 && request.status === 200)
@@ -27,7 +27,7 @@
                     }
                 }
             };
-            request.open("GET", "/api/awardmedal?token=" + token_element.innerHTML.replace(/^\s+|\s+$/g, '') + "&user=" + $(this).attr("userid"), true);
+            request.open("GET", "/api/awardmedal?token=" + token + "&user=" + $(this).attr("userid"), true);
             request.send(null);
         }
 
@@ -62,7 +62,6 @@
                     <div class="medal-description">
                         {{ medal.description }}
                     </div>
-                    <code id="medal-{{ medal.id }}-token" class="hidden">{{ medal.token }}</code>
                 </div>
             </div>
         </div>
@@ -75,7 +74,7 @@
     <div id="user-list">
         <ul class="list-group">
             {% for user in members %}
-                <li class="list-group-item user clickable" id="user-{{ user.id }}" userid="{{ user.id }}"><img class="small-discord-avatar" src="{{ user.avatar_url() }}"> {{ user.username }}#{{ user.discriminator }}</li>
+                <li class="list-group-item user clickable" id="user-{{ user.id }}" userid="{{ user.id }}"><img class="small-discord-avatar" src="{{ user.avatar_url() }}"> {{ user }}</li>
             {% endfor %}
         </ul>
         <button id="submit" onclick="listSubmit()" class="btn btn-primary">Award</button>
