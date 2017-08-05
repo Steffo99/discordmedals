@@ -11,6 +11,7 @@ import os
 app = Flask("discordmedals")
 app.secret_key = os.environ["FLASK_SECRET_KEY"]
 app.config["SQLALCHEMY_DATABASE_URI"] = os.environ["DATABASE_URI"]
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db = SQLAlchemy(app)
 
 class Membership(db.Model):

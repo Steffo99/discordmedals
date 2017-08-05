@@ -123,3 +123,7 @@ h3 .discord-avatar, .discord-avatar {
 .clickable:hover {
     color: rgba(100%, 100%, 100%, 1.0) !important;
 }
+
+td {
+    border-color: #99AAB5 !important;
+}
