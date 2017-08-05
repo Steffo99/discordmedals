@@ -110,6 +110,16 @@ h3 .discord-avatar, .discord-avatar {
     border: none;
 }
 
+.list-group-item.active {
+    color: white;
+    background-color: #7289DA !important;
+}
+
 .clickable {
+    color: rgba(100%, 100%, 100%, 0.7) !important;
     cursor: pointer;
+}
+
+.clickable:hover {
+    color: rgba(100%, 100%, 100%, 1.0) !important;
 }
