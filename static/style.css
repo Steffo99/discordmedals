@@ -53,21 +53,6 @@ h3 .discord-avatar, .discord-avatar {
     margin-right: auto;
 }
 
-.badge.bronze {
-    color: white;
-    background-color: chocolate;
-}
-
-.badge.silver {
-    color: black;
-    background-color: darkgray;
-}
-
-.badge.gold {
-    color: black;
-    background-color: gold;
-}
-
 .bronze {
     color: chocolate;
 }

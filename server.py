@@ -174,32 +174,6 @@ def make_session(token=None, state=None, scope=None):
                          auto_refresh_url=oauth2_token_url,
                          token_updater=update_token)
 
-def count_awards_by_tier(awards_joined_with_medals: list):
-    bronze = 0
-    silver = 0
-    gold = 0
-    for award in awards_joined_with_medals:
-        if award.medal.tier == "bronze":
-            bronze += 1
-        elif award.medal.tier == "silver":
-            silver += 1
-        elif award.medal.tier == "gold":
-            gold += 1
-    return bronze, silver, gold
-
-
-def count_medals_by_tier(medals: list):
-    bronze = 0
-    silver = 0
-    gold = 0
-    for medal in medals:
-        if medal.tier == "bronze":
-            bronze += 1
-        elif medal.tier == "silver":
-            silver += 1
-        elif medal.tier == "gold":
-            gold += 1
-    return bronze, silver, gold
 
 
 def escape_string_for_discord(string: str):
@@ -226,8 +200,7 @@ def page_guild(guild_id):
         user = None
     else:
         user = User.query.filter_by(id=session["user_id"]).first()
-    bronze, silver, gold = count_medals_by_tier(medals)
-    return render_template("guild.htm", user=user, medals=medals, members=members, guild=guild, bronze=bronze, silver=silver, gold=gold)
+    return render_template("guild.htm", user=user, medals=medals, members=members, guild=guild)
 
 
 @app.route("/guild/<int:guild_id>/new", methods=["GET", "POST"])
